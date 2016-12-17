@@ -1,0 +1,760 @@
+<html>
+    <head>
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="http://abve.wgb.hal.hydro.com:8080/webBDE/resources/bootstrap/bootstrap.css">
+        <script type = "text/javascript" src="http://abve.wgb.hal.hydro.com:8080/webBDE/resources/bootstrap/jquery.js"></script>
+        <script src="http://abve.wgb.hal.hydro.com:8080/webBDE/resources/bootstrap/bootstrap.min.js"></script>
+        <meta http-equiv="Refresh" content="45">
+        <title>AL3 Status</title>
+        <style>
+            .mylist {
+                background: none;
+                border-right: none;
+            }
+            .hydro-background
+            {
+                background-color: #eee;
+                border-radius: 10px;
+            }
+            .row-space
+            {
+                margin-bottom: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div style="padding: 1%">
+            <div class="row">
+                <div class="col-md-24">
+                    <span id="datetime"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-8">
+                    <h3>Maschinen</h3>
+                </div>
+                <div class="col-md-16">
+                    <div class="row"><div class="col-md-1"></div><div class="col-md-23"><h3>Zu- und Abdienstrecken</h3></div></div>
+                </div>
+            </div>
+            <div class="row row-space">
+                <div class="col-md-8 hydro-background">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <span>Status</span>
+                            <ul class="list-group">
+                                <li class="list-group-item mylist"><div class="maschine-group-item-wrapper">Produktion</div></li>
+                                <li class="list-group-item mylist"><div class="maschine-group-item-wrapper">Ruesten</div></li>
+                                <li class="list-group-item mylist"><div class="maschine-group-item-wrapper">Ausfall</div></li>
+                                <li class="list-group-item mylist"><div class="maschine-group-item-wrapper">m/min</div></li>
+                                <li class="list-group-item mylist"><div class="maschine-group-item-wrapper">Restlaufzeit</div></li>
+                            </ul>
+                            </div>
+                        <div class="col-md-6">
+                            <span>AL3 VL</span>
+                            <ul class="list-group">
+                                <li class="list-group-item" style="background-color: #00CD66     ">
+                                    <div class="maschine-group-item-wrapper"></div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="maschine-group-item-wrapper">
+                                        <span style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="maschine-group-item-wrapper">
+                                        <span style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="maschine-group-item-wrapper">                              </div>
+                                </li>
+                                <li class="list-group-item">
+                                    <div class="maschine-group-item-wrapper">                              </div>
+                                </li>                                                                                                                                                
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <span>AL3 GL</span>
+                            <ul class="list-group">
+                                <li class="list-group-item" style="background-color: #00CD66     ">
+                                    <div class="maschine-group-item-wrapper"></div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="maschine-group-item-wrapper">
+                                        <span style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="maschine-group-item-wrapper">
+                                        <span style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="maschine-group-item-wrapper">                              </div>
+                                </li>
+                                <li class="list-group-item">
+                                    <div class="maschine-group-item-wrapper">                              </div>
+                                </li>                                                                                                                                                
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <span>AL3 BL</span>
+                            <ul class="list-group">
+                                <li class="list-group-item" style="background-color: #00CD66     ">
+                                    <div class="maschine-group-item-wrapper"></div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="maschine-group-item-wrapper">
+                                        <span style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="maschine-group-item-wrapper">
+                                        <span style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="maschine-group-item-wrapper">                              </div>
+                                </li>
+                                <li class="list-group-item">
+                                    <div class="maschine-group-item-wrapper">                              </div>
+                                </li>                                                                                                                                                
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-16">
+                    <div class="row">
+                        <div class="col-md-1"></div>
+                        <div class="col-md-7 hydro-background">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="header-streck">Status</div>
+                                    <ul class="list-group">
+                                        <li class="list-group-item mylist"><div class="streck-group-item-wrapper">Automatik</div></li>
+                                        <li class="list-group-item mylist"><div class="streck-group-item-wrapper">Hand</div></li>
+                                        <li class="list-group-item mylist"><div class="streck-group-item-wrapper">Stoerung</div></li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="header-streck">VL Einlauf (VLE)</div>
+                                    <ul class="list-group">
+                                        <li class="list-group-item" style="background-color: #00CD66     ">
+                                            <div class="streck-group-item-wrapper"></div>
+                                        </li>
+                                        <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                            <div class="streck-group-item-wrapper">
+                                                <span style="display:block; font-weight: bold;">                              </span>
+                                                <span style="font-weight: bold;">                              </span>
+                                            </div>
+                                        </li>
+                                        <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                            <div class="streck-group-item-wrapper">
+                                                <span style="font-weight: bold; display:block">                              </span>
+                                                <span style="font-weight: bold;">                              </span>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="header-streck">VL Auslauf (VLA)</div>
+                                    <ul class="list-group">
+                                        <li class="list-group-item" style="background-color: #00CD66     ">
+                                            <div class="streck-group-item-wrapper"></div>
+                                        </li>
+                                        <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                            <div class="streck-group-item-wrapper">
+                                                <span style="font-weight: bold; display:block">                              </span>
+                                                <span style="font-weight: bold;">                              </span>
+                                            </div>
+                                        </li>
+                                        <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                            <div class="streck-group-item-wrapper">
+                                                <span style="font-weight: bold; display:block">                              </span>
+                                                <span style="font-weight: bold;">                              </span>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-1"></div>
+                        <div class="col-md-7 hydro-background">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="header-streck">GL Einlauf 1 (GLE1)</div>
+                                    <ul class="list-group">
+                                        <li class="list-group-item" style="background-color: #00CD66     ">
+                                            <div class="streck-group-item-wrapper"></div>
+                                        </li>
+                                        <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                            <div class="streck-group-item-wrapper">
+                                                <span style="font-weight: bold; display:block">                              </span>
+                                                <span style="font-weight: bold;">                              </span>
+                                            </div>
+                                        </li>
+                                        <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                            <div class="streck-group-item-wrapper">
+                                                <span style="font-weight: bold; display:block">                              </span>
+                                                <span style="font-weight: bold;">                              </span>
+                                            </div>
+                                        </li>
+
+                                    </ul>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="header-streck">GL Einlauf 2 (GLE2)</div>
+                                    <ul class="list-group">
+                                        <li class="list-group-item" style="background-color: #00CD66     ">
+                                            <div class="streck-group-item-wrapper"></div>
+                                        </li>
+                                        <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                            <div class="streck-group-item-wrapper">
+                                                <span style="font-weight: bold; display:block">                              </span>
+                                                <span style="font-weight: bold;">                              </span>
+                                            </div>
+                                        </li>
+                                        <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                            <div class="streck-group-item-wrapper">
+                                                <span style="font-weight: bold; display:block">                              </span>
+                                                <span style="font-weight: bold;">                              </span>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="header-streck">GL Auslauf (GLA)</div>
+                                    <ul class="list-group">
+                                        <li class="list-group-item" style="background-color: #00CD66     ">
+                                            <div class="streck-group-item-wrapper"></div>
+                                        </li>
+                                        <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                            <div class="streck-group-item-wrapper">
+                                                <span style="font-weight: bold; display:block">                              </span>
+                                                <span style="font-weight: bold;">                              </span>
+                                            </div>
+                                        </li>
+                                        <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                            <div class="streck-group-item-wrapper">
+                                                <span style="font-weight: bold; display:block">                              </span>
+                                                <span style="font-weight: bold;">                              </span>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-1"></div>
+                        <div class="col-md-7 hydro-background">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="header-streck">BL Einlauf 1 (BLE1)</div>
+                                    <ul class="list-group">
+                                        <li class="list-group-item" style="background-color: #00CD66     ">
+                                            <div class="streck-group-item-wrapper"></div>
+                                        </li>
+                                        <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                            <div class="streck-group-item-wrapper">
+                                                <span style="font-weight: bold; display:block">                              </span>
+                                                <span style="font-weight: bold;">                              </span>
+                                            </div>
+                                        </li>
+                                        <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                            <div class="streck-group-item-wrapper">
+                                                <span style="font-weight: bold; display:block">                              </span>
+                                                <span style="font-weight: bold;">                              </span>
+                                            </div>
+                                        </li>
+
+                                    </ul>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="header-streck">BL Einlauf 2 (BLE2)</div>
+                                    <ul class="list-group">
+                                        <li class="list-group-item" style="background-color: #00CD66     ">
+                                            <div class="streck-group-item-wrapper"></div>
+                                        </li>
+                                        <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                            <div class="streck-group-item-wrapper">
+                                                <span style="font-weight: bold; display:block">                              </span>
+                                                <span style="font-weight: bold;">                              </span>
+                                            </div>
+                                        </li>
+                                        <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                            <div class="streck-group-item-wrapper">
+                                                <span style="font-weight: bold; display:block">                              </span>
+                                                <span style="font-weight: bold;">                              </span>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="header-streck">BL Auslauf (BLA)</div>
+                                    <ul class="list-group">
+                                        <li class="list-group-item" style="background-color: #00CD66     ">
+                                            <div class="streck-group-item-wrapper"></div>
+                                        </li>
+                                        <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                            <div class="streck-group-item-wrapper">
+                                                <span style="font-weight: bold; display:block">                              </span>
+                                                <span style="font-weight: bold;">                              </span>
+                                            </div>
+                                        </li>
+                                        <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                            <div class="streck-group-item-wrapper">
+                                                <span style="font-weight: bold; display:block">                              </span>
+                                                <span style="font-weight: bold;">                              </span>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-24">
+                    <h3>Transport</h3>
+                </div>
+            </div>
+            <div class="row row-space">
+                <div class="col-md-5 hydro-background">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="header-streck">Status</div>
+                            <ul class="list-group">
+                                <li class="list-group-item mylist"><div class="trans-group-item-wrapper">Automatik</div></li>
+                                <li class="list-group-item mylist"><div class="trans-group-item-wrapper">Hand</div></li>
+                                <li class="list-group-item mylist"><div class="trans-group-item-wrapper">Stoerung</div></li>
+                            </ul>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="header-streck">Lagermaschine (CLM)</div>
+                            <ul class="list-group">
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="trans-group-item-wrapper"></div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="trans-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display:block">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #d9534f     ">
+                                    <div class="trans-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display:block">seit: 14 t                    </span>
+                                        <span style="font-weight: bold;">Störung                       </span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-1"></div>
+                <div class="col-md-5 hydro-background">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="header-streck">Kran oben (CKO)</div>
+                            <ul class="list-group">
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="trans-group-item-wrapper"></div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="trans-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display:block">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #d9534f     ">
+                                    <div class="trans-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display:block">seit: 14 t                    </span>
+                                        <span style="font-weight: bold;">Störung                       </span>
+                                    </div>
+                                </li>
+                            </ul>
+
+                        </div>
+                        <div class="col-md-12">
+                            <div class="header-streck">Wagen oben (CWO)</div>
+                            <ul class="list-group">
+                                <li class="list-group-item" style="background-color: #00CD66     ">
+                                    <div class="trans-group-item-wrapper"></div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="trans-group-item-wrapper"></div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="trans-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-1"></div>
+                <div class="col-md-5 hydro-background">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="header-streck">Kran unten(CKU)</div>
+                            <ul class="list-group">
+                                <li class="list-group-item" style="background-color: #00CD66     ">
+                                    <div class="trans-group-item-wrapper"></div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="trans-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                                <li class="list-group-item">
+                                    <div class="trans-group-item-wrapper" style="background-color: #FFFFFF     ">
+                                        <span style="font-weight: bold;" style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                            </ul>
+
+                        </div>
+                        <div class="col-md-12">
+                            <div class="header-streck">Wagen unten (CWU)</div>
+                            <ul class="list-group">
+                                <li class="list-group-item" style="background-color: #00CD66     ">
+                                    <div class="trans-group-item-wrapper">
+                                    </div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="trans-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="trans-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-1"></div>
+                <div class="col-md-6 hydro-background">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="header-streck">Bundeingangskran (BEK)</div>
+                            <ul class="list-group">
+                                <li class="list-group-item" style="background-color: #00CD66     ">
+                                    <div class="trans-group-item-wrapper"></div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="trans-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="trans-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="header-streck">Bundeingangswagen (BEW)</div>
+                            <ul class="list-group">
+                                <li class="list-group-item" style="background-color: #00CD66     ">
+                                    <div class="trans-group-item-wrapper"></div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="trans-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="trans-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="header-streck">Uebergabewagen (BWAL)</div>
+                            <ul class="list-group">
+                                <li class="list-group-item" style="background-color: #00CD66     ">
+                                    <div class="trans-group-item-wrapper"></div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="trans-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="trans-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-24">
+                    <h3>Reststoff- und Spulenhandling</h3>
+                </div>
+            </div>
+            <div class="row row-space">
+                <div class="col-md-9 hydro-background">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="header-streck">Status</div>
+                            <ul class="list-group">
+                                <li class="list-group-item mylist"><div class="handling-group-item-wrapper">Automatik</div></li>
+                                <li class="list-group-item mylist"><div class="handling-group-item-wrapper">Hand</div></li>
+                                <li class="list-group-item mylist"><div class="handling-group-item-wrapper">Stoerung</div></li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="header-streck">Reststoff VL 1 (RSV1)</div>
+                            <ul class="list-group">
+                                <li class="list-group-item" style="background-color: #00CD66     ">
+                                    <div class="handling-group-item-wrapper"></div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="handling-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="handling-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="header-streck">Reststoff VL 2 (RSV2)</div>
+                            <ul class="list-group">
+                                <li class="list-group-item" style="background-color: #00CD66     ">
+                                    <div class="handling-group-item-wrapper"></div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="handling-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="handling-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="header-streck">Reststoff VL 3 (RSV3)</div>
+                            <ul class="list-group">
+                                <li class="list-group-item" style="background-color: #00CD66     ">
+                                    <div class="handling-group-item-wrapper"></div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="handling-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="handling-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-1"></div>
+                <div class="col-md-2 hydro-background">
+                    <div class="row">
+                        <div class="col-md-24">
+                            <div class="header-streck">Reststoff GL (RSG)</div>
+                            <ul class="list-group">
+                                <li class="list-group-item" style="background-color: #00CD66     ">
+                                    <div class="handling-group-item-wrapper"></div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="handling-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="handling-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                            </ul>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-1"></div>
+                <div class="col-md-5 hydro-background">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="header-streck">Reststoff BL 1(RSB1)</div>
+                            <ul class="list-group">
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="handling-group-item-wrapper"></div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="handling-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #d9534f     ">
+                                    <div class="handling-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display: block; font-weight: bold;">seit: 14 t                    </span>
+                                        <span style="font-weight: bold;">Störung                       </span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="header-streck">Reststoff BL 2 (RSB2)</div>
+                            <ul class="list-group">
+                                <li class="list-group-item" style="background-color: #00CD66     ">
+                                    <div class="handling-group-item-wrapper"></div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="handling-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="handling-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-1"></div>
+                <div class="col-md-5 hydro-background">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="header-streck">Transportwagen (RSTW)</div>
+                            <ul class="list-group">
+                                <li class="list-group-item" style="background-color: #00CD66     ">
+                                    <div class="handling-group-item-wrapper"></div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="handling-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="handling-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="header-streck">Spulenmagazin (RSSM)</div>
+                            <ul class="list-group">
+                                <li class="list-group-item" style="background-color: #00CD66     ">
+                                    <div class="handling-group-item-wrapper"></div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="handling-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="handling-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="header-streck">Paletten (RSRH)</div>
+                            <ul class="list-group">
+                                <li class="list-group-item" style="background-color: #00CD66     ">
+                                    <div class="handling-group-item-wrapper"></div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="handling-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" style="background-color: #FFFFFF     ">
+                                    <div class="handling-group-item-wrapper">
+                                        <span style="font-weight: bold;" style="display: block; font-weight: bold;">                              </span>
+                                        <span style="font-weight: bold;">                              </span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script>
+    //Passe Hoehe der einzelnen Felder an
+    function setHeight(klasse)
+    {
+        var temp = 0;
+        $(klasse).each(function (index) {
+            if($(this).outerHeight() > temp)
+            {
+                temp = $(this).outerHeight();
+            }          
+        });
+
+        $(klasse).css('min-height',temp);
+
+    }
+    setHeight(".list-group .list-group-item-wrapper");
+    setHeight(".list-group .maschine-group-item-wrapper");
+    setHeight(".list-group .streck-group-item-wrapper");
+    setHeight(".list-group .trans-group-item-wrapper");
+    setHeight(".list-group .handling-group-item-wrapper");
+    setHeight(".header-streck");
+
+    datetime = new Date();
+    $("#datetime").html(datetime.toISOString());
+    </script>
+</html>
+

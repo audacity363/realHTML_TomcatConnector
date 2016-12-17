@@ -4,7 +4,6 @@
 #include <dlfcn.h>
 #include <errno.h>
 
-#include "realHTMLjni.h"
 #include "natuser.h"
 #include "natni.h"
 
@@ -16,31 +15,29 @@
 void printNaturalException( struct natural_exception *pnatexcep);
 int OpenLib(void **shLib, char *name);
 void CloseLib(void **shLib);
-int setupNatParms(pnni_611_functions s_func, const char **keys,
-                  const char **vals, int *val_length, int length,
-                  struct parameter_description *natparms);
+int setupNatParms(pnni_611_functions s_func, char **keys,
+                  char **vals, int *val_length, int length,
+                  char *tmp_file, char *parms, struct parameter_description *natparms);
 
-
-JNIEXPORT jint JNICALL Java_Start_sayHello
-  (JNIEnv *env, jobject curobj, jobjectArray keys, jobjectArray vals, 
-   jstring req_type, jstring jlibrary, jstring jprogram, jstring jfilename)
+int main(int argc, char *argv[])
 {
-    if(!keys || !vals || !jlibrary || !jprogram || ! jfilename)
+
+    if(argc != 7)
     {
-        jclass exc = (*env)->FindClass(env, "java/lang/NullPointerException");
-        if(exc)
-            (*env)->ThrowNew(env, exc, "(In C Code)");
+        fprintf(stderr, "parm error\n");
         return(-1);
     }
-
-    int key_length = (*env)->GetArrayLength(env, keys),
-        val_length = (*env)->GetArrayLength(env, vals),
+    int key_length = 0,
+        val_length = 0,
         i = 0;
 
-    jstring java_string;
-    const char **key_array = NULL,
-               **val_array = NULL,
-               *library = NULL, *program = NULL; 
+    char **key_array = NULL,
+         **val_array = NULL,
+         *library = NULL, *program = NULL,
+         *sav_ptr = NULL, *tmp_file = NULL,
+         *parms = NULL; 
+
+
     int *parm_length = NULL,
         rc = 0;
 
@@ -49,6 +46,35 @@ JNIEXPORT jint JNICALL Java_Start_sayHello
     PF_NNI_GET_INTERFACE pf_nni_get_interface = 0;
     pnni_611_functions s_func;
     struct parameter_description params[7];
+
+    if(!(key_array = malloc(sizeof(char*))))
+    {
+        fprintf(stderr, "%s", strerror(errno));
+        return(-2);
+    }
+    if(!(val_array = malloc(sizeof(char*))))
+    {
+        fprintf(stderr, "%s", strerror(errno));
+        return(-2);
+    }
+
+    sav_ptr = strtok(argv[1], ";");
+    while(sav_ptr != NULL)
+    {
+        key_array[key_length] = sav_ptr;
+        key_length++;
+        key_array = realloc(key_array, sizeof(char*)*key_length);
+        sav_ptr = strtok(NULL, ";");
+    }
+
+    sav_ptr = strtok(argv[2], ";");
+    while(sav_ptr != NULL)
+    {
+        val_array[val_length] = sav_ptr;
+        val_length++;
+        val_array = realloc(val_array, sizeof(char*)*val_length);
+        sav_ptr = strtok(NULL, ";");
+    }
 
 
     if(key_length != val_length)
@@ -70,19 +96,11 @@ JNIEXPORT jint JNICALL Java_Start_sayHello
         return(-5);
     }
 
-    library = (*env)->GetStringUTFChars(env, jlibrary, 0);
-    program = (*env)->GetStringUTFChars(env, jprogram, 0);
+    library = argv[3];
+    program = argv[4];
+    tmp_file = argv[5];
+    parms = argv[6];
 
-    //Convert the Java String Object Array into C char pointer Arrays
-    for(;i < key_length; i++)
-    {
-        java_string = (jstring)((*env)->GetObjectArrayElement(env, keys, i));
-        key_array[i] = (*env)->GetStringUTFChars(env, java_string, 0);
-
-        java_string = (jstring)((*env)->GetObjectArrayElement(env, vals, i));
-        val_array[i] = (*env)->GetStringUTFChars(env, java_string, 0);
-        parm_length[i] = strlen(val_array[i]);
-    }
 
     for(i=0; i < key_length; i++)
     {
@@ -140,10 +158,10 @@ JNIEXPORT jint JNICALL Java_Start_sayHello
     printf("...Done\n");
 
 
-    setupNatParms(s_func, key_array, val_array, parm_length, key_length, params);
+    setupNatParms(s_func, key_array, val_array, parm_length, key_length, tmp_file, parms, params);
 
     printf("Call subprogramm [%s]...", program);
-    if(s_func->pf_nni_callnat(s_func, program, 0, NULL, &nat_ex) != NNI_RC_OK)
+    if(s_func->pf_nni_callnat(s_func, program, 7, params, &nat_ex) != NNI_RC_OK)
     {
         printf("...Error\n");
         printNaturalException(&nat_ex);
@@ -174,15 +192,15 @@ JNIEXPORT jint JNICALL Java_Start_sayHello
 }
 
 
-int setupNatParms(pnni_611_functions s_func, const char **keys,
-                  const char **vals, int *val_length, int length,
-                  struct parameter_description *natparms)
+int setupNatParms(pnni_611_functions s_func, char **keys,
+                  char **vals, int *val_length, int length,
+                  char *tmp_file, char *parms, struct parameter_description *natparms)
 {
     //TODO: Switch to XArrays with Dynamic Unicode Variables
     int occ[3] = {20, 0, 0},
         ind[3] = {0, 0, 0},
         i = 0;
-    char val_buff[2024], key_buff[100];
+    char val_buff[2024], key_buff[100], file_buff[100];
     void *phandle = NULL;
 
     s_func->pf_nni_create_parm(s_func, 7, &phandle);
@@ -219,12 +237,21 @@ int setupNatParms(pnni_611_functions s_func, const char **keys,
                 sizeof(key_buff), key_buff, ind);
     }
 
+    s_func->pf_nni_put_parm(s_func, 3, phandle, sizeof(int), &length);
+
+    memset(file_buff, 0x20, sizeof(file_buff));
+    memcpy(file_buff, tmp_file, strlen(tmp_file)+1);
+    s_func->pf_nni_put_parm(s_func, 5, phandle, sizeof(file_buff), file_buff);
+
+    strcpy(val_buff, parms);
+    s_func->pf_nni_put_parm(s_func, 6, phandle, strlen(val_buff)+1, val_buff);
+
     for(;i < 7; i++)
     {
         s_func->pf_nni_get_parm_info(s_func, i, phandle, &(natparms[i]));
     }
 
-
+    return(0);
 }
 
 int OpenLib(void **shLib, char *name)

@@ -5,6 +5,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
+import java.lang.reflect.Method;
 
 
 class XMLLoader
@@ -74,13 +75,13 @@ class XMLLoader
 
 class Start
 {
-    static
+    /*static
     {
         System.load("./realHTMLjni.so");
     }
 
     static native int sayHello(String[] keys, String[] val, String req_type,
-                                String library, String program, String filepath);
+                                String library, String program, String filepath);*/
 
     public static void main(String[] args)
     {
@@ -119,7 +120,32 @@ class Start
 
         System.out.printf("Tmp Filename: [%s]\n", filename);
 
-        sayHello(keys, vals, "POST", settings_res[1], settings_res[0], filename);
+        try
+        {
+            CustomClassLoader cl = new CustomClassLoader();
+            Class ca = cl.findClass("A");
+            IA ia = (IA)ca.newInstance();
+            ClassScope cs = new ClassScope();
+            final String[] libraries = cs.getLoadedLibraries(ClassLoader.getSystemClassLoader());
+            ia.sayHello(keys, vals, "POST", settings_res[1], settings_res[0], filename);
+            /*Object a = ca.newInstance();
+            Class[] argtypes = new Class[6];
+            argtypes[0] = String[].class;
+            argtypes[1] = String[].class;
+            argtypes[2] = String.class;
+            argtypes[3] = String.class;
+            argtypes[4] = String.class;
+            argtypes[5] = String.class;
+            Method p = ca.getMethod("sayHello");
+            p.invoke(a);*/
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+
+
+        //sayHello(keys, vals, "POST", settings_res[1], settings_res[0], filename);
 
         out_file.deleteOnExit();
     }
