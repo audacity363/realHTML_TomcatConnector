@@ -1,0 +1,21 @@
+<realHTML4Natural>
+    <environment type="abve">
+        <routes>/srv/tomcat_connector/config_files/routes.xml</routes>
+        <htdocs>/u/it/a140734/C/realHtml4Natural/web_server/htdocs/</htdocs>
+        <templates>/u/it/a140734/C/realHtml4Natural/web_server/templates/</templates>
+        <port>1024</port>
+        <debug>true</debug>
+        <naterror>nat_error.html</naterror>
+        <ldaerror></ldaerror>
+        <parsererror></parsererror>
+        <natparms>parm=abveparm etid=$$</natparms>
+        <natsourcepath>/VAW/natural/abve/fuser63/</natsourcepath>
+        <loginroute>/login.html</loginroute>
+        <loginfile>login.html</loginfile>
+    </environment>
+    <environment type="production">
+        <routes>/u/it/a140734/C/realHtml4Natural/web_server/routes.xml</routes>
+        <htdocs>/u/it/a140734/C/realHtml4Natural/web_server/htdocs/</htdocs>
+        <templates>/u/it/a140734/C/realHtml4Natural/web_server/templates/</templates>
+    </environment>
+</realHTML4Natural>
