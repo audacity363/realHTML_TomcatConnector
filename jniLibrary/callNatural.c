@@ -373,7 +373,7 @@ int printErrortoFile(struct natural_exception ext, char *outfile)
     }
 
     fprintf(output, HTML_ERROR_HEAD, ext.natMessageNumber);
-    fprintf(output, "<h1>A Natural Runtime Error occurred<h1>\n");
+    fprintf(output, "<h1>A Natural Runtime Error occurred</h1>\n");
     fprintf(output, "<p><span>Message Text:</span>%s</p>\n", ext.natMessageText);
     fprintf(output, "<p><span>Error Number:</span>%d</p>\n", ext.natMessageNumber);
     fprintf(output, "<p><span>Library:</span>%s</p>\n", ext.natLibrary);
