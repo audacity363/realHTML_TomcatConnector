@@ -1,6 +1,10 @@
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.File;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.FileReader;
+import java.io.FileNotFoundException;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.util.*;
@@ -94,13 +98,19 @@ public class realHTMLServlet extends HttpServlet {
 
         String tmp_file = temp.getAbsolutePath();
 
-
-        out.println(tmp_file);
-        out.println("<br>");
-
         int ret = bs.callNatural(keys, vals, this.req_type, this.natinfos, tmp_file, settingsstr, this.settings.get("natparms"));
 
-        out.println("<h1>"+ret+"</h1>");
+        switch(deliverFile(out, tmp_file))
+        {
+            case -1:
+                out.println("File Not found");
+                break;
+            case -2:
+                out.println("IOException");
+                break;
+            case 0:
+                out.println("OK!");
+        }
 
     }
 
@@ -209,6 +219,36 @@ public class realHTMLServlet extends HttpServlet {
                 this.natinfos[0],
                 this.settings.get("natsourcepath"));
         return(settings_str);
+    }
+     
+    private int deliverFile(PrintWriter out, String filename)
+    {
+        try
+        {
+            Reader in = new FileReader(filename);
+
+            char[] buffer = new char[1024];
+            int length;
+
+            while((length = in.read(buffer)) > 0)
+            {
+                out.write(buffer);
+            }
+
+            in.close();
+            out.flush();
+        }
+        catch(FileNotFoundException e)
+        {
+            return(-1);
+        }
+        catch(IOException e)
+        {
+            return(-2);
+        }
+
+
+        return(0);
     }
 
 
