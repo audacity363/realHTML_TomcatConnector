@@ -11,6 +11,8 @@
 #define NAT_LIB_NAME "libnatural.so"
 #define GET_INTERFACE_FUNC "nni_get_interface"
 
+#define HTML_ERROR_HEAD "<html><head><title>Natural Error: [%d]</title></head><body>\n"
+
 #define DEBUG 1
 
 #define debug_print(fmt, ...) \
@@ -36,6 +38,7 @@ void CloseLib(void **shLib);
 void printNaturalException( struct natural_exception *pnatexcep);
 pnni_611_functions initNatural(void *lib, char *natparms);
 int initNatParms(realHTMLinfos infos, struct parameter_description *parms, pnni_611_functions s_funcs);
+int printErrortoFile(struct natural_exception ext, char *outfile);
     
 JNIEXPORT jint JNICALL Java_realHTML_tomcat_connector_JNINatural_jni_1callNatural
   (JNIEnv *env, jobject obj, jobjectArray keys, jobjectArray vals, 
@@ -50,7 +53,7 @@ JNIEXPORT jint JNICALL Java_realHTML_tomcat_connector_JNINatural_jni_1callNatura
         val_length = 0,
         i = 0, ret = 0;
 
-    realHTMLinfos infos;
+    realHTMLinfos infos = {NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL};
 
     const char *tmp_buff = NULL;
 
@@ -117,23 +120,37 @@ JNIEXPORT jint JNICALL Java_realHTML_tomcat_connector_JNINatural_jni_1callNatura
 
 exit:
     //Free all allocated memory
-    for(i=0; i < key_length; i++)
-    {
-        debug_print("[%s] = [%s]\n", infos.http_keys[i], infos.http_vals[i]);
-        free(infos.http_keys[i]);
-        free(infos.http_vals[i]);
-    }
+    if(infos.http_keys != NULL)
+            free(infos.http_keys[i]);
 
-    free(infos.http_vals);
-    free(infos.http_vals);
-    free(infos.http_reqtype);
+    if(infos.http_vals != NULL)
+        for(i=0; i < key_length; i++)
+            free(infos.http_vals[i]);
+    
+    if(infos.http_keys != NULL)
+        free(infos.http_keys);
 
-    free(infos.nat_library);
-    free(infos.nat_program);
-    free(infos.nat_parms);
+    if(infos.http_vals != NULL)
+        free(infos.http_vals);
 
-    free(infos.tmp_file);
-    free(infos.settings_str);
+    if(infos.http_reqtype != NULL)
+        free(infos.http_reqtype);
+
+    if(infos.nat_library != NULL)
+        free(infos.nat_library);
+
+    if(infos.nat_program != NULL)
+        free(infos.nat_program);
+
+    if(infos.nat_parms != NULL)
+        free(infos.nat_parms);
+
+
+    if(infos.tmp_file != NULL)
+        free(infos.tmp_file);
+
+    if(infos.settings_str != NULL)
+        free(infos.settings_str);
 
 #ifdef FIILE_DEBUG
     fclose(test);
@@ -179,6 +196,7 @@ int callNatural(realHTMLinfos infos)
     if(s_funcs->pf_nni_callnat(s_funcs, infos.nat_program , 7, parms, &nat_ex) != NNI_RC_OK)
     {
         printNaturalException(&nat_ex);
+        printErrortoFile(nat_ex, infos.tmp_file);
     }
 
     printf( "Uninitializing Natural..." );
@@ -281,7 +299,7 @@ pnni_611_functions initNatural(void *lib, char *natparms)
 
     if(((pf_nni_get_interface)(NNI_VERSION_CURR, (void**)&s_funcs)) != NNI_RC_OK)
     {
-        printf("...Error while gettings Functrion Table\n");
+        printf("...Error while gettings Function Table\n");
         return(NULL);
     }
 
@@ -320,7 +338,7 @@ void CloseLib(void **shLib)
 
 
 /* Format and print a Natural exception. */
-void printNaturalException( struct natural_exception *pnatexcep)
+void printNaturalException(struct natural_exception *pnatexcep)
 {
     char error_str[2024];
     int error_line;
@@ -342,4 +360,25 @@ void printNaturalException( struct natural_exception *pnatexcep)
         debug_print( "Line:          %d.\n",
             pnatexcep->natLine );
     }
+}
+
+int printErrortoFile(struct natural_exception ext, char *outfile)
+{
+    FILE *output;
+
+    if((output = fopen(outfile, "w")) == NULL)
+    {
+        fprintf(stderr, "Can not open file\n");
+        return(-1);
+    }
+
+    fprintf(output, HTML_ERROR_HEAD, ext.natMessageNumber);
+    fprintf(output, "<h1>A Natural Runtime Error occurred<h1>\n");
+    fprintf(output, "<p><span>Message Text:</span>%s</p>\n", ext.natMessageText);
+    fprintf(output, "<p><span>Error Number:</span>%d</p>\n", ext.natMessageNumber);
+    fprintf(output, "<p><span>Library:</span>%s</p>\n", ext.natLibrary);
+    fprintf(output, "</body></html>");
+
+    fclose(output);
+    return(0);
 }
