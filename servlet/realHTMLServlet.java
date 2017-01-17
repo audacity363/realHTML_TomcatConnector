@@ -233,6 +233,7 @@ public class realHTMLServlet extends HttpServlet {
             while((length = in.read(buffer)) > 0)
             {
                 out.write(buffer);
+                buffer = new char[1024];
             }
 
             in.close();
