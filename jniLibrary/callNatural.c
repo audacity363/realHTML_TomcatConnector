@@ -53,6 +53,8 @@ JNIEXPORT jint JNICALL Java_realHTML_tomcat_connector_JNINatural_jni_1callNatura
         val_length = 0,
         i = 0, ret = 0;
 
+    pid_t child;
+
     realHTMLinfos infos = {NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL};
 
     const char *tmp_buff = NULL;
@@ -73,11 +75,13 @@ JNIEXPORT jint JNICALL Java_realHTML_tomcat_connector_JNINatural_jni_1callNatura
         tmp_buff = (*env)->GetStringUTFChars(env, j_string, 0);
         infos.http_keys[i] = malloc(sizeof(char)*(strlen(tmp_buff)+1));
         strcpy(infos.http_keys[i], tmp_buff);
+        (*env)->ReleaseStringUTFChars(env, j_string, tmp_buff);
 
         j_string = (jstring)(*env)->GetObjectArrayElement(env, vals, i);
         tmp_buff = (*env)->GetStringUTFChars(env, j_string, 0);
         infos.http_vals[i] = malloc(sizeof(char)*(strlen(tmp_buff)+1));
         strcpy(infos.http_vals[i], tmp_buff);
+        (*env)->ReleaseStringUTFChars(env, j_string, tmp_buff);
     }
     infos.http_parms_length = key_length;
 
@@ -85,6 +89,7 @@ JNIEXPORT jint JNICALL Java_realHTML_tomcat_connector_JNINatural_jni_1callNatura
     tmp_buff = (*env)->GetStringUTFChars(env, req_type, 0);
     infos.http_reqtype = malloc(sizeof(char)*(strlen(tmp_buff)+1));
     strcpy(infos.http_reqtype, tmp_buff);
+    (*env)->ReleaseStringUTFChars(env, req_type, tmp_buff);
 
     //Copy natural library and programm that should get called
     //First index is the library
@@ -93,29 +98,50 @@ JNIEXPORT jint JNICALL Java_realHTML_tomcat_connector_JNINatural_jni_1callNatura
     tmp_buff = (*env)->GetStringUTFChars(env, j_string, 0);
     infos.nat_library = malloc(sizeof(char)*(strlen(tmp_buff)+1));
     strcpy(infos.nat_library, tmp_buff);
+    (*env)->ReleaseStringUTFChars(env, j_string, tmp_buff);
 
     j_string = (jstring)(*env)->GetObjectArrayElement(env, natinfos, 1);
     tmp_buff = (*env)->GetStringUTFChars(env, j_string, 0);
     infos.nat_program = malloc(sizeof(char)*(strlen(tmp_buff)+1));
     strcpy(infos.nat_program, tmp_buff);
+    (*env)->ReleaseStringUTFChars(env, j_string, tmp_buff);
 
     //Copy the natural parms for the natural session
     tmp_buff = (*env)->GetStringUTFChars(env, nat_parms, 0);
     infos.nat_parms = malloc(sizeof(char)*(strlen(tmp_buff)+1));
     strcpy(infos.nat_parms, tmp_buff);
-
+    (*env)->ReleaseStringUTFChars(env, nat_parms, tmp_buff);
 
     //Copy the path to the output file
     tmp_buff = (*env)->GetStringUTFChars(env, tmp_file, 0);
     infos.tmp_file = malloc(sizeof(char)*(strlen(tmp_buff)+1));
     strcpy(infos.tmp_file , tmp_buff);
+    (*env)->ReleaseStringUTFChars(env, tmp_file, tmp_buff);
 
     //Copy the settings string for the lda and html parser
-    tmp_buff = (*env)->GetStringUTFChars(env, tmp_file, 0);
+    tmp_buff = (*env)->GetStringUTFChars(env, settings_str, 0);
     infos.settings_str = malloc(sizeof(char)*(strlen(tmp_buff)+1));
     strcpy(infos.settings_str, tmp_buff);
+    (*env)->ReleaseStringUTFChars(env, settings_str, tmp_buff);
 
-    ret = callNatural(infos);
+    if((child = fork()) == -1)
+    {
+        fprintf(stderr, "Can not create natural child\n");
+        ret = -2;
+        goto exit;
+    }
+
+    if(child == 0)
+    {
+        ret = callNatural(infos);
+        exit(0);
+    }
+
+    fprintf(stderr, "Wait for pid[%d]...", child);
+
+    wait(NULL);
+
+    fprintf(stderr, "...OK\n");
 
 
 exit:
