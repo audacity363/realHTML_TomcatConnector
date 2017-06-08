@@ -1,5 +1,5 @@
-#JAVACLASSPATH = ${CURDIR}/realHTMLconnector.jar:/srv/apache-tomcat-8.5.9/lib/servlet-api.jar
-JAVACLASSPATH = /u/it/a140734/C/realHTML_TomcatConnector/realHTMLconnector.jar:/SAG/tom/v7042/lib/servlet-api.jar
+JAVACLASSPATH = ${CURDIR}/servlet/web/WEB-INF/lib/realHTMLconnector.jar:/srv/apache-tomcat-8.5.9/lib/servlet-api.jar
+#JAVACLASSPATH = /u/it/a140734/realHTML_TomcatConnector/realHTMLconnector.jar:/opt/tomcat/apache-tomcat-8.0.41/lib/servlet-api.jar
 
 
 #INCLUDES = -I/usr/java/jdk1.8.0_111/include/ \
@@ -9,23 +9,39 @@ JAVACLASSPATH = /u/it/a140734/C/realHTML_TomcatConnector/realHTMLconnector.jar:/
 INCLUDES = -I/SAG/cjp/v16/include/ \
 		   -I./jniLibrary/
 
+
 #CC = gcc
 CC = xlc
 
 all:
-	make jni_connector
-	make tomcat_servlet
-	make jni_so
+	@printf "targets:\n"
+	@printf "\tcomplete      : Build the complete connector\n"
+	@printf "\twarfile       : Pack the .war file for deployment\n"
+	@printf "\tjni_connector : Compile the utility library\n"
+	@printf "\ttomcat_servlet: Compile the tomcat servlet\n"
+	@printf "\tjni_so        : Compile the JNI so object\n"
 
 jni_connector:
-	javac realHTML/tomcat/connector/JNINatural.java
-	javac -cp ./ realHTML/tomcat/connector/JNILoader.java
-	javac -cp ./ realHTML/tomcat/connector/Router.java
-	javac -cp ./ realHTML/tomcat/connector/ConfigurationLoader.java
-	jar cf realHTMLconnector.jar realHTML
+	mkdir -p ./servlet/web/WEB-INF/lib
+	javac ./servlet/src/realHTML/tomcat/connector/JNINatural.java
+	javac -cp ./servlet/src/ ./servlet/src/realHTML/tomcat/connector/JNILoader.java
+	javac -cp ./servlet/src/ ./servlet/src/realHTML/tomcat/connector/Router.java
+	javac -cp ./servlet/src/ ./servlet/src/realHTML/tomcat/connector/ConfigurationLoader.java
+	cd ./servlet/src/ && jar cf ../../servlet/web/WEB-INF/lib/realHTMLconnector.jar ./realHTML
 
 tomcat_servlet:
-	javac -cp $(JAVACLASSPATH) servlet/realHTMLServlet.java
+	mkdir -p ./servlet/web/WEB-INF/classes
+	javac -cp $(JAVACLASSPATH) servlet/src/realHTMLServlet.java
+	cp ./servlet/src/realHTMLServlet.class ./servlet/web/WEB-INF/classes/
+
+warfile:
+	cd ./servlet/web/ && jar cvf ../realHTML4Natural.war .
+	@printf "Created the realHTML4Natural.war file in ./servlet\n"
+
+complete:
+	make jni_connector
+	make tomcat_servlet
+	make warfile
 
 deploy_servlet:
 	make tomcat_servlet
@@ -39,21 +55,12 @@ jni_so:
 	#${CC} -shared -o librealHTMLconnector.so ./jniLibrary/callNatural.o
 	${CC} -G -o librealHTMLconnector.so ./jniLibrary/callNatural.o
 
-deploy_all:
-	make all
-	cp ./realHTMLconnector.jar /srv/apache-tomcat-8.5.9/lib/
-	cp ./servlet/realHTMLServlet.class /srv/apache-tomcat-8.5.9/webapps/ROOT/WEB-INF/classes/
-	/srv/apache-tomcat-8.5.9/bin/catalina.sh stop
-	export realHTMLconfiguration=/srv/tomcat_connector/config_files/config.xml \
-		&& /srv/apache-tomcat-8.5.9/bin/catalina.sh start
-
-test_copnfig:
-	cd tests && \
-		javac -cp ${JAVACLASSPATH} ConfigTest.java  && \
-		java -cp ${JAVACLASSPATH}:./ ConfigTest
-
-test_jni:
-	cd tests && \
-		javac -cp $(JAVACLASSPATH) CallNatural.java && \
-		java -cp $(JAVACLASSPATH):./ -Djava.library.path=/u/it/a140734/C/realHTML_TomcatConnector/ CallNatural
-
+clean:
+	rm -f ./servlet/realHTMLServlet.class
+	rm -f ./servlet/realHTML/tomcat/connector/*.class
+	rm -f ./servlet/realHTML4Natural.war
+	rm -f ./servlet/web/WEBINF/classes/realHTMLServlet.class
+	rm -f ./servlet/web/WEB-INF/lib/realHTMLconnector.jar
+	rm -f ./librealHTMLconnector.so
+	rm -f ./tests/*.class
+	rm -f ./jniLibrary/*.o

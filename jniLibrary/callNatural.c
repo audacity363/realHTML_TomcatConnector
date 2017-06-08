@@ -3,6 +3,8 @@
 #include <string.h>
 #include <dlfcn.h>
 #include <errno.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #include "natni.h"
 #include "natuser.h"
@@ -139,9 +141,10 @@ JNIEXPORT jint JNICALL Java_realHTML_tomcat_connector_JNINatural_jni_1callNatura
 
     fprintf(stderr, "Wait for pid[%d]...", child);
 
-    wait(NULL);
+    //TODO: Add error Handling! (Write to the output file when the child exited abnormally)
+    waitpid(child, NULL, 0);
 
-    fprintf(stderr, "...OK\n");
+    fprintf(stderr, "...OK[%d]\n", child);
 
 
 exit:
@@ -219,6 +222,7 @@ int callNatural(realHTMLinfos infos)
     printf("...Done\n");
 
 
+    printf("Tmp_file: [%s]\n", infos.tmp_file);
     if(s_funcs->pf_nni_callnat(s_funcs, infos.nat_program , 7, parms, &nat_ex) != NNI_RC_OK)
     {
         printNaturalException(&nat_ex);
