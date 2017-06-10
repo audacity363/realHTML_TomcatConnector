@@ -15,11 +15,17 @@
 
 #define HTML_ERROR_HEAD "<html><head><title>Natural Error: [%d]</title></head><body>\n"
 
-#define DEBUG 1
+#define DEBUG 0
 
+#if DEBUG
 #define debug_print(fmt, ...) \
             do { if (DEBUG) fprintf(stderr, fmt, __VA_ARGS__); } while(0);
+#else
+#define debug_print(fmt, ...) \
+            do { } while(0);
+#endif
 
+#define VERSION_STR "realHTML4Natural Tomcat Connector JNILibrary Version 1.0"
 
 typedef struct {
     char **http_keys;
@@ -41,6 +47,13 @@ void printNaturalException( struct natural_exception *pnatexcep);
 pnni_611_functions initNatural(void *lib, char *natparms);
 int initNatParms(realHTMLinfos infos, struct parameter_description *parms, pnni_611_functions s_funcs);
 int printErrortoFile(struct natural_exception ext, char *outfile);
+
+JNIEXPORT jint JNICALL Java_realHTML_tomcat_connector_JNINatural_jni_1printVersion (JNIEnv *env, jobject obj)
+{
+    printf("Loaded %s\n", VERSION_STR);
+    return(0);
+}
+
     
 JNIEXPORT jint JNICALL Java_realHTML_tomcat_connector_JNINatural_jni_1callNatural
   (JNIEnv *env, jobject obj, jobjectArray keys, jobjectArray vals, 
@@ -60,6 +73,7 @@ JNIEXPORT jint JNICALL Java_realHTML_tomcat_connector_JNINatural_jni_1callNatura
     realHTMLinfos infos = {NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL};
 
     const char *tmp_buff = NULL;
+
 
     jstring j_string;
 
@@ -126,9 +140,10 @@ JNIEXPORT jint JNICALL Java_realHTML_tomcat_connector_JNINatural_jni_1callNatura
     strcpy(infos.settings_str, tmp_buff);
     (*env)->ReleaseStringUTFChars(env, settings_str, tmp_buff);
 
+
     if((child = fork()) == -1)
     {
-        fprintf(stderr, "Can not create natural child\n");
+        fprintf(stderr, "Can not create natural child [%s]\n", strerror(errno));
         ret = -2;
         goto exit;
     }
@@ -212,30 +227,30 @@ int callNatural(realHTMLinfos infos)
 
     initNatParms(infos, parms, s_funcs);
 
-    printf("Logon into [%s]...", infos.nat_library);
+    debug_print("Logon into [%s]...", infos.nat_library);
     if((rc = s_funcs->pf_nni_logon(s_funcs, infos.nat_library , 0, 0)) != NNI_RC_OK)
     {
-        printf("...Error. Nr: [%d]\n", rc);
+        fprintf(stderr, "Error: Logging in to [%s]. NNI Ret: [%d]\n", infos.nat_library, rc);
         CloseLib(&shlib);
         return(-5);
     }
-    printf("...Done\n");
+    debug_print("...Done%s\n", "");
 
 
-    printf("Tmp_file: [%s]\n", infos.tmp_file);
+    debug_print("Tmp_file: [%s]\n", infos.tmp_file);
     if(s_funcs->pf_nni_callnat(s_funcs, infos.nat_program , 7, parms, &nat_ex) != NNI_RC_OK)
     {
         printNaturalException(&nat_ex);
         printErrortoFile(nat_ex, infos.tmp_file);
     }
 
-    printf( "Uninitializing Natural..." );
+    debug_print( "Uninitializing Natural...%s", "");
     s_funcs->pf_nni_uninitialize(s_funcs);
-    printf("...Done\n");
+    debug_print("...Done%s\n", "");
 
-    printf("Freeing interface...");
+    debug_print("Freeing interface...%s", "");
     s_funcs->pf_nni_free_interface(s_funcs);
-    printf("...Done\n");
+    debug_print("...Done%s\n", "");
 
     
 
@@ -322,14 +337,14 @@ pnni_611_functions initNatural(void *lib, char *natparms)
     if(!(pf_nni_get_interface = (PF_NNI_GET_INTERFACE)dlsym(lib, GET_INTERFACE_FUNC)))
     {
         error = dlerror();
-        debug_print("Error while loading Function [%s]: [%s]\n", GET_INTERFACE_FUNC,
+        fprintf(stderr, "Error while loading Function [%s]: [%s]\n", GET_INTERFACE_FUNC,
             error);
         return(NULL);
     }
 
     if(((pf_nni_get_interface)(NNI_VERSION_CURR, (void**)&s_funcs)) != NNI_RC_OK)
     {
-        printf("...Error while gettings Function Table\n");
+        fprintf(stderr, "Error while gettings Function Table\n");
         return(NULL);
     }
 
@@ -337,10 +352,10 @@ pnni_611_functions initNatural(void *lib, char *natparms)
     debug_print("Init Natural Session with parms: [%s]...", natparms);
     if((rc = s_funcs->pf_nni_initialize(s_funcs, natparms, 0, 0)) != NNI_RC_OK)
     {
-        debug_print("...Error [%d]\n", rc)
+        fprintf(stderr, "Error while init natural session. Parms: [%s] NNI Ret: [%d]\n", natparms, rc);
         return(NULL);
     }
-    printf("..Done\n");
+    debug_print("..Done%s\n", "");
 
     return(s_funcs);
 
@@ -354,7 +369,7 @@ int OpenLib(void **shLib, char *name)
     if(!*shLib)
     {
         error = dlerror();
-        printf("Error while loading Module [%s]: [%s]\n", name, error);
+        fprintf(stderr, "Error while loading Module [%s]: [%s]\n", name, error);
         return(-1);
     }
     return(0);
@@ -375,19 +390,19 @@ void printNaturalException(struct natural_exception *pnatexcep)
 
     if (pnatexcep)
     {
-        debug_print( "MessageNumber: %d.\n",
+        fprintf(stderr, "MessageNumber: %d.\n",
             pnatexcep->natMessageNumber );
-        debug_print( "MessageText:   %s\n",
+        fprintf(stderr, "MessageText:   %s\n",
             pnatexcep->natMessageText ? pnatexcep->natMessageText : "0" );
-        debug_print( "Library:       %s.\n",
+        fprintf(stderr,  "Library:       %s.\n",
             pnatexcep->natLibrary ? pnatexcep->natLibrary : "0" );
-        debug_print( "Member:        %s.\n",
+        fprintf(stderr, "Member:        %s.\n",
             pnatexcep->natMember ? pnatexcep->natMember : "0" );
-        debug_print( "Name:          %s.\n",
+        fprintf(stderr, "Name:          %s.\n",
             pnatexcep->natName ? pnatexcep->natName : "0" );
-        debug_print( "Method:        %s.\n",
+        fprintf(stderr, "Method:        %s.\n",
             pnatexcep->natMethod ? pnatexcep->natMethod : "0" );
-        debug_print( "Line:          %d.\n",
+        fprintf(stderr, "Line:          %d.\n",
             pnatexcep->natLine );
     }
 }
@@ -398,7 +413,7 @@ int printErrortoFile(struct natural_exception ext, char *outfile)
 
     if((output = fopen(outfile, "w")) == NULL)
     {
-        fprintf(stderr, "Can not open file\n");
+        fprintf(stderr, "Can not open file [%s] for writing natural exception\n");
         return(-1);
     }
 

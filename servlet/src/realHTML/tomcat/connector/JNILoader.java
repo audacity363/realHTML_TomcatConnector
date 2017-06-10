@@ -14,4 +14,8 @@ public class JNILoader
     {
         return(new JNINatural()).jni_callNatural(keys, vals, req_type, natinfos, tmp_file, settings_str, nat_parms);
     }
+    public int printVersion()
+    {
+        return(new JNINatural()).jni_printVersion();
+    }
 }

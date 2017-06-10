@@ -15,6 +15,14 @@ extern "C" {
 JNIEXPORT jint JNICALL Java_realHTML_tomcat_connector_JNINatural_jni_1callNatural
   (JNIEnv *, jobject, jobjectArray, jobjectArray, jstring, jobjectArray, jstring, jstring, jstring);
 
+/*
+ * Class:     realHTML_tomcat_connector_JNINatural
+ * Method:    jni_printVersion
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_realHTML_tomcat_connector_JNINatural_jni_1printVersion
+  (JNIEnv *, jobject);
+
 #ifdef __cplusplus
 }
 #endif

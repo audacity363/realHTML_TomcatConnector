@@ -1,5 +1,5 @@
-JAVACLASSPATH = ${CURDIR}/servlet/web/WEB-INF/lib/realHTMLconnector.jar:/srv/apache-tomcat-8.5.9/lib/servlet-api.jar
-#JAVACLASSPATH = /u/it/a140734/realHTML_TomcatConnector/realHTMLconnector.jar:/opt/tomcat/apache-tomcat-8.0.41/lib/servlet-api.jar
+#JAVACLASSPATH = ${CURDIR}/servlet/web/WEB-INF/lib/realHTMLconnector.jar:/srv/apache-tomcat-8.5.9/lib/servlet-api.jar
+JAVACLASSPATH = /u/it/a140734/realHTML_TomcatConnector/servlet/web/WEB-INF/lib/realHTMLconnector.jar:/opt/tomcat/apache-tomcat-8.0.41/lib/servlet-api.jar
 
 
 #INCLUDES = -I/usr/java/jdk1.8.0_111/include/ \
@@ -49,7 +49,7 @@ deploy_servlet:
 
 jni_so:
 	rm -f librealHTMLconnector.so
-	javah -jni -o jniLibrary/realHTML_tomcat_connector_JNINatural.h \
+	cd ./servlet/src && javah -jni -o ../../jniLibrary/realHTML_tomcat_connector_JNINatural.h \
 			realHTML.tomcat.connector.JNINatural
 	${CC} -c -fpic $(INCLUDES) -o ./jniLibrary/callNatural.o ./jniLibrary/callNatural.c
 	#${CC} -shared -o librealHTMLconnector.so ./jniLibrary/callNatural.o

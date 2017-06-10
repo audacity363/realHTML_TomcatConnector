@@ -17,14 +17,15 @@ public class realHTMLServlet extends HttpServlet {
     private List<String> req_vals;
     private String req_type;
     private Boolean debug = false;
-    private String version = "TomcatConnector V1.00";
+    private String version = "realHTML4Natural Tomcat Connector Servlet Version 1.0";
 
     String default_tags[] = {"routes", "templates", "debug", "naterror", "ldaerror", "natparms", "natsourcepath"};
 
     public void init() throws ServletException
     {
         System.out.printf("Start %s...\n", this.version);
-        //bs = new JNILoader();
+        bs = new JNILoader();
+        bs.printVersion();
     }
 
     public void doGet(HttpServletRequest request,
@@ -95,7 +96,7 @@ public class realHTMLServlet extends HttpServlet {
 
         String tmp_file = temp.getAbsolutePath();
 
-        //int ret = bs.callNatural(keys, vals, this.req_type, this.natinfos, tmp_file, settingsstr, this.settings.get("natparms"));
+        int ret = bs.callNatural(keys, vals, this.req_type, this.natinfos, tmp_file, settingsstr, this.settings.get("natparms"));
 
         switch(deliverFile(out, tmp_file))
         {
@@ -263,5 +264,7 @@ public class realHTMLServlet extends HttpServlet {
 
 
     public void destroy()
-    {}
+    {
+       System.out.printf("Shutdown %s...\n", this.version);
+    }
 }
