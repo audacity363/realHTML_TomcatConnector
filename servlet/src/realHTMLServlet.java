@@ -2,6 +2,7 @@ import java.io.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.util.*;
+import java.nio.charset.Charset;
 
 import realHTML.tomcat.connector.JNILoader;
 import realHTML.tomcat.connector.ConfigurationLoader;
@@ -225,7 +226,7 @@ public class realHTMLServlet extends HttpServlet {
 
         try
         {
-            InputStreamReader in = new InputStreamReader(new FileInputStream(filename), "UTF-8");
+            InputStreamReader in = new InputStreamReader(new FileInputStream(filename), Charset.forName("ISO-8859-15"));
             BufferedReader br = new BufferedReader(in);
 
             while((curLine = br.readLine()) != null)
