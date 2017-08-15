@@ -7,6 +7,9 @@ import java.nio.charset.Charset;
 import realHTML.tomcat.connector.JNILoader;
 import realHTML.tomcat.connector.ConfigurationLoader;
 import realHTML.tomcat.connector.Router;
+import realHTML.tomcat.connector.RH4NReturn;
+import realHTML.tomcat.connector.RH4NParams;
+
 
 public class realHTMLServlet extends HttpServlet {
 
@@ -18,7 +21,7 @@ public class realHTMLServlet extends HttpServlet {
     private List<String> req_vals;
     private String req_type;
     private Boolean debug = false;
-    private String version = "realHTML4Natural Tomcat Connector Servlet Version 1.0";
+    private String version = "realHTML4Natural Tomcat Connector Servlet Version 1.0 (test)";
 
     String default_tags[] = {"routes", "templates", "debug", "naterror", "ldaerror", "natparms", "natsourcepath"};
 
@@ -66,6 +69,9 @@ public class realHTMLServlet extends HttpServlet {
                     HttpServletResponse response)
             throws ServletException, IOException
     {
+        RH4NParams parms = new RH4NParams();
+        RH4NReturn returncode;
+
         response.setContentType("text/html");
         PrintWriter out = response.getWriter();
 
@@ -89,17 +95,29 @@ public class realHTMLServlet extends HttpServlet {
 
         saveReqParms(request);
 
-        String[] keys = this.req_keys.toArray(new String[0]);
-        String[] vals = this.req_vals.toArray(new String[0]);
+        parms.keys = this.req_keys.toArray(new String[0]);
+        parms.vals = this.req_vals.toArray(new String[0]);
     
-        String settingsstr = generateSettingsString();
+        parms.settings = generateSettingsString();
+
         File temp = File.createTempFile("rH4N", "", new File("/tmp/"));
 
-        String tmp_file = temp.getAbsolutePath();
+        parms.tmp_file = temp.getAbsolutePath();
+        parms.reg_type = this.req_type;
+        parms.nat_library = this.natinfos[0];
+        parms.nat_program = this.natinfos[1];
+        parms.natparams = this.settings.get("natparms");
+        parms.debug = String.valueOf(this.debug);
 
-        int ret = bs.callNatural(keys, vals, this.req_type, this.natinfos, tmp_file, settingsstr, this.settings.get("natparms"));
+        returncode = bs.callNatural(parms);
 
-        switch(deliverFile(out, tmp_file))
+        if(returncode.natprocess_ret < 0)
+        {
+            out.println(returncode.error_msg);
+            return;
+        }
+
+        switch(deliverFile(out, parms.tmp_file))
         {
             case -1:
                 out.println("File Not found");
@@ -108,7 +126,6 @@ public class realHTMLServlet extends HttpServlet {
                 out.println("IOException");
                 break;
         }
-
     }
 
     private void saveReqParms(HttpServletRequest req)

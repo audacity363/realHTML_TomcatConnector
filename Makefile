@@ -7,7 +7,7 @@ JAVACLASSPATH = /u/it/a140734/realHTML_TomcatConnector/servlet/web/WEB-INF/lib/r
 #		   -I./jniLibrary/
 
 INCLUDES = -I/SAG/cjp/v16/include/ \
-		   -I./jniLibrary/
+		   -I./jniLibrary/include/
 
 
 #CC = gcc
@@ -23,10 +23,12 @@ all:
 
 jni_connector:
 	mkdir -p ./servlet/web/WEB-INF/lib
-	javac ./servlet/src/realHTML/tomcat/connector/JNINatural.java
-	javac -cp ./servlet/src/ ./servlet/src/realHTML/tomcat/connector/JNILoader.java
-	javac -cp ./servlet/src/ ./servlet/src/realHTML/tomcat/connector/Router.java
-	javac -cp ./servlet/src/ ./servlet/src/realHTML/tomcat/connector/ConfigurationLoader.java
+	javac -classpath "./servlet/src/" ./servlet/src/realHTML/tomcat/connector/RH4NReturn.java
+	javac -classpath "./servlet/src/" ./servlet/src/realHTML/tomcat/connector/RH4NParams.java
+	javac -classpath "./servlet/src/" ./servlet/src/realHTML/tomcat/connector/JNINatural.java
+	javac -classpath "./servlet/src/" ./servlet/src/realHTML/tomcat/connector/JNILoader.java
+	javac -classpath "./servlet/src/" ./servlet/src/realHTML/tomcat/connector/Router.java
+	javac -classpath "./servlet/src/" ./servlet/src/realHTML/tomcat/connector/ConfigurationLoader.java
 	cd ./servlet/src/ && jar cf ../../servlet/web/WEB-INF/lib/realHTMLconnector.jar ./realHTML
 
 tomcat_servlet:
@@ -49,11 +51,16 @@ deploy_servlet:
 
 jni_so:
 	rm -f librealHTMLconnector.so
-	cd ./servlet/src && javah -jni -o ../../jniLibrary/realHTML_tomcat_connector_JNINatural.h \
+	cd ./servlet/src && javah -jni -o ../../jniLibrary/include/realHTML_tomcat_connector_JNINatural.h \
 			realHTML.tomcat.connector.JNINatural
-	${CC} -c -fpic $(INCLUDES) -o ./jniLibrary/callNatural.o ./jniLibrary/callNatural.c
+	${CC} -c -g -fpic $(INCLUDES) -o ./jniLibrary/bin/main.o ./jniLibrary/src/main.c
+	${CC} -c -g -fpic $(INCLUDES) -o ./jniLibrary/bin/natural.o ./jniLibrary/src/natural.c
 	#${CC} -shared -o librealHTMLconnector.so ./jniLibrary/callNatural.o
-	${CC} -G -o librealHTMLconnector.so ./jniLibrary/callNatural.o
+	${CC} -G -o librealHTMLconnector.so ./jniLibrary/bin/*.o
+
+test:
+	javac -cp ./servlet/src/ ./tests/CallNatural.java 
+	java -cp "./servlet/src/:./tests/" -Djava.library.path="/u/it/a140734/realHTML_TomcatConnector/" CallNatural
 
 clean:
 	rm -f ./servlet/realHTMLServlet.class

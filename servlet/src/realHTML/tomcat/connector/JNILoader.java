@@ -10,9 +10,9 @@ public class JNILoader
         //System.out.println("Lib Loaded");
     }
 
-    public int callNatural(String[] keys, String[] vals, String req_type, String[] natinfos, String tmp_file, String settings_str, String nat_parms)
+    public RH4NReturn callNatural(RH4NParams parms)
     {
-        return(new JNINatural()).jni_callNatural(keys, vals, req_type, natinfos, tmp_file, settings_str, nat_parms);
+        return(new JNINatural()).jni_callNatural(parms);
     }
     public int printVersion()
     {

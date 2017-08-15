@@ -1,6 +1,6 @@
 package realHTML.tomcat.connector;
 
 public class JNINatural{
-    public native int jni_callNatural(String[] keys, String[] vals, String req_type, String[] natinfos, String tmp_file, String settings_str, String nat_parms);
+    public native RH4NReturn jni_callNatural(RH4NParams parms);
     public native int jni_printVersion();
 }
