@@ -7,7 +7,7 @@
 #include "natni.h"
 #include "rh4n.h"
 
-#define VERSIONSTR "realHTML4Natural Tomcat Connector JNILibrary Version 2.0"
+#define VERSIONSTR "realHTML4Natural Tomcat Connector JNILibrary Version 2.0.1"
 
 int stringHandle(JNIEnv *env, jobject, struct naturalparms*);
 int arrayHandle(JNIEnv *env, jobject, struct naturalparms*);
@@ -16,21 +16,10 @@ void *stringGetter(JNIEnv *env, struct naturalparms *pparmtarget, int index);
 void *arrayGetter(JNIEnv *env, struct naturalparms *pparmtarget, int index);
 
 void printAll(JNIEnv *, struct naturalparms[], int, FILE*);
-void freeAll(JNIEnv *, FILE*);
+void freeAll(JNIEnv *, FILE*, struct naturalparms*, int);
 jobject createReturnObj(JNIEnv *env, int exit_code, char*, FILE*);
 
-struct naturalparms params[] = 
-{
-    {"keys", "[Ljava/lang/String;", NULL, NULL, -1, arrayHandle, arrayGetter},
-    {"vals", "[Ljava/lang/String;", NULL, NULL, -1, arrayHandle, arrayGetter},
-    {"reg_type", "Ljava/lang/String;", NULL, NULL, -1, stringHandle, stringGetter},
-    {"nat_library", "Ljava/lang/String;", NULL, NULL, -1, stringHandle, stringGetter},
-    {"nat_program", "Ljava/lang/String;", NULL, NULL, -1, stringHandle, stringGetter},
-    {"natparams", "Ljava/lang/String;", NULL, NULL, -1, stringHandle, stringGetter},
-    {"tmp_file", "Ljava/lang/String;", NULL, NULL, -1, stringHandle, stringGetter},
-    {"settings", "Ljava/lang/String;", NULL, NULL, -1, stringHandle, stringGetter},
-    {"debug", "Ljava/lang/String;", NULL, NULL, -1, stringHandle, stringGetter}
-};
+int createNaturalProcess(JNIEnv *env, struct naturalparms *parms, int length, char *error, FILE *logfile);
 
 
 JNIEXPORT jint JNICALL Java_realHTML_tomcat_connector_JNINatural_jni_1printVersion
@@ -55,13 +44,28 @@ JNIEXPORT jobject JNICALL Java_realHTML_tomcat_connector_JNINatural_jni_1callNat
          filename[10+NNI_LEN_LIBRARY+NNI_LEN_MEMBER],
          *natprogram, *natlibrary;
 
+    struct naturalparms params[] = 
+    {
+        {"keys", "[Ljava/lang/String;", NULL, NULL, -1, arrayHandle, arrayGetter},
+        {"vals", "[Ljava/lang/String;", NULL, NULL, -1, arrayHandle, arrayGetter},
+        {"reg_type", "Ljava/lang/String;", NULL, NULL, -1, stringHandle, stringGetter},
+        {"nat_library", "Ljava/lang/String;", NULL, NULL, -1, stringHandle, stringGetter},
+        {"nat_program", "Ljava/lang/String;", NULL, NULL, -1, stringHandle, stringGetter},
+        {"natparams", "Ljava/lang/String;", NULL, NULL, -1, stringHandle, stringGetter},
+        {"tmp_file", "Ljava/lang/String;", NULL, NULL, -1, stringHandle, stringGetter},
+        {"settings", "Ljava/lang/String;", NULL, NULL, -1, stringHandle, stringGetter},
+        {"debug", "Ljava/lang/String;", NULL, NULL, -1, stringHandle, stringGetter}
+    };
+
+    int parm_length = sizeof(params)/sizeof(struct naturalparms);
+
 
     FILE *logfile = NULL;
 
     //Get reference to the RH4NParams Class
     jrh4nparams = (*env)->GetObjectClass(env, jnatparams);
 
-    for(i=0; i < sizeof(params)/sizeof(struct naturalparms); i++)
+    for(i=0; i < parm_length; i++)
     {
         jfid = (*env)->GetFieldID(env, jrh4nparams, params[i].jname,
                 params[i].jtype);
@@ -77,41 +81,63 @@ JNIEXPORT jobject JNICALL Java_realHTML_tomcat_connector_JNINatural_jni_1callNat
         }
     }
 
-    target = getParmByName(params, sizeof(params)/sizeof(struct naturalparms), "debug");
+    target = getParmByName(params, parm_length, "debug");
 
     if(strcmp(target->getter(env, target, 0), "true") == 0)
     {
-        target = getParmByName(params, sizeof(params)/sizeof(struct naturalparms), "nat_library");
+        target = getParmByName(params, parm_length, "nat_library");
         natlibrary = target->getter(env, target, 0);
 
-        target = getParmByName(params, sizeof(params)/sizeof(struct naturalparms), "nat_program");
+        target = getParmByName(params, parm_length, "nat_program");
         natprogram = target->getter(env, target, 0);
 
         sprintf(filename, "/tmp/%s_%s.log", natlibrary, natprogram);
         if((logfile = fopen(filename, "w")) == NULL)
         {
-            freeAll(env, logfile);
+            freeAll(env, logfile, params, parm_length);
             fclose(logfile);
             return(createReturnObj(env, -3, strerror(errno), logfile));
         }
     }
 
-    printAll(env, params, sizeof(params)/sizeof(struct naturalparms), logfile);
+    printAll(env, params, parm_length, logfile);
     
-    if((rc = callNatural(env, params, sizeof(params)/sizeof(struct naturalparms), error_msg, logfile)) != 0)
-    {
-        freeAll(env, logfile);
-        fclose(logfile);
-        return(createReturnObj(env, rc, error_msg, logfile));
-    }
+
+    createNaturalProcess(env, params, parm_length, error_msg, logfile);
 
     debugFileprint(logfile, "Freeing Java res...\n");
-    freeAll(env, logfile);
+    freeAll(env, logfile, params, parm_length);
     debugFileprint(logfile, "...Done\n");
 
     fclose(logfile);
 
     return(createReturnObj(env, 0, " ", logfile));
+}
+
+int createNaturalProcess(JNIEnv *env, struct naturalparms *parms, int length, 
+    char *error, FILE *logfile)
+{
+    pid_t natpid = 0, ret_pid = 0;
+    int status = 0, rc = 0;
+
+    fflush(logfile);
+
+    natpid = fork();
+    if(natpid == 0)
+    {
+        if((rc = callNatural(env, parms, length, error, logfile)) != 0)
+        {
+            //freeAll(env, logfile);
+            //return(createReturnObj(env, rc, error_msg, logfile));
+        }
+        fflush(logfile);
+        fclose(logfile);
+        exit(rc);
+    }
+    debugFileprint(logfile, "Waiting for PID: [%d]....\n", natpid);
+    ret_pid = waitpid(natpid, &status, NULL);
+    debugFileprint(logfile, "...PID [%d] exited\n", ret_pid);
+    return(status);
 }
 
 jobject createReturnObj(JNIEnv *env, int exit_code, char *error_msg, FILE* logfile)
@@ -154,28 +180,28 @@ void printAll(JNIEnv *env, struct naturalparms params[], int length, FILE *logfi
     }
 }
 
-void freeAll(JNIEnv *env, FILE *logfile)
+void freeAll(JNIEnv *env, FILE *logfile, struct naturalparms *parms, int parms_length)
 {
     int i,x;
     jstring jstr;
     jobjectArray jarr;
 
-    for(i=0; i < sizeof(params)/sizeof(struct naturalparms); i++)
+    for(i=0; i < parms_length; i++)
     {
-        debugFileprint(logfile, "\tFreeing [%s]\n", params[i].jname);
-        if(params[i].array_length != -1)
+        debugFileprint(logfile, "\tFreeing [%s]\n", parms[i].jname);
+        if(parms[i].array_length != -1)
         {
-            jarr = (jobjectArray)params[i].target;
-            for(x=0; x < params[i].array_length; x++)
+            jarr = (jobjectArray)parms[i].target;
+            for(x=0; x < parms[i].array_length; x++)
             {
                 jstr = (jstring)(*env)->GetObjectArrayElement(env, jarr, x);
-                (*env)->ReleaseStringUTFChars(env, jstr, ((char**)params[i].value)[x]);
+                (*env)->ReleaseStringUTFChars(env, jstr, ((char**)parms[i].value)[x]);
             }
             //free(params[i].value);
         }
         else
         {
-            (*env)->ReleaseStringUTFChars(env, (jstring)params[i].target, (char*)params[i].value);
+            (*env)->ReleaseStringUTFChars(env, (jstring)parms[i].target, (char*)parms[i].value);
         }
     }
 }
@@ -263,6 +289,13 @@ char *natErrno2Str(int naterrno)
         "Index for dimension 1 out of range",
         "Index for dimension 2 out of range"
     };
+    static char startuperror[1024];
+
+    if(naterrno < NNI_RC_SERR_OFFSET)
+    {
+        sprintf(startuperror, "Natural Startup Error [%d]", naterrno-NNI_RC_SERR_OFFSET);
+        return(startuperror);
+    }
 
     if(naterrno == NNI_RC_BAD_INDEX_0)
         naterrno = 14;

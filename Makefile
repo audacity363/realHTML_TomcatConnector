@@ -1,5 +1,5 @@
 #JAVACLASSPATH = ${CURDIR}/servlet/web/WEB-INF/lib/realHTMLconnector.jar:/srv/apache-tomcat-8.5.9/lib/servlet-api.jar
-JAVACLASSPATH = /u/it/a140734/realHTML_TomcatConnector/servlet/web/WEB-INF/lib/realHTMLconnector.jar:/opt/tomcat/apache-tomcat-8.0.41/lib/servlet-api.jar
+JAVACLASSPATH = /u/it/a140734/rh4n/realHTML_TomcatConnector/servlet/web/WEB-INF/lib/realHTMLconnector.jar:/opt/tomcat/apache-tomcat-8.0.41/lib/servlet-api.jar
 
 
 #INCLUDES = -I/usr/java/jdk1.8.0_111/include/ \
@@ -29,6 +29,7 @@ jni_connector:
 	javac -classpath "./servlet/src/" ./servlet/src/realHTML/tomcat/connector/JNILoader.java
 	javac -classpath "./servlet/src/" ./servlet/src/realHTML/tomcat/connector/Router.java
 	javac -classpath "./servlet/src/" ./servlet/src/realHTML/tomcat/connector/ConfigurationLoader.java
+	javac -classpath "./servlet/src/" ./servlet/src/realHTML/tomcat/connector/RH4NCallParms.java
 	cd ./servlet/src/ && jar cf ../../servlet/web/WEB-INF/lib/realHTMLconnector.jar ./realHTML
 
 tomcat_servlet:
@@ -60,7 +61,7 @@ jni_so:
 
 test:
 	javac -cp ./servlet/src/ ./tests/CallNatural.java 
-	java -cp "./servlet/src/:./tests/" -Djava.library.path="/u/it/a140734/realHTML_TomcatConnector/" CallNatural
+	java -cp "./servlet/src/:./tests/" -Djava.library.path="/u/it/a140734/rh4n/realHTML_TomcatConnector/" CallNatural
 
 clean:
 	rm -f ./servlet/realHTMLServlet.class

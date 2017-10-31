@@ -19,6 +19,7 @@ public class Router
     String program = null;
     String library = null;
     Boolean debug = false;
+    Boolean deletefile = true;
     String error_msg; 
 
     public Router(String filepath)
@@ -83,6 +84,16 @@ public class Router
                     }
                 }
 
+                target = eElement.getElementsByTagName("deleteFile");
+                if(target.getLength() != 0)
+                {
+                    bool_str = target.item(0).getTextContent();
+                    if(bool_str.equals("false"))
+                    {
+                        this.deletefile = false;
+                    }
+                }
+
                 return(true);
             }
         }
@@ -103,6 +114,11 @@ public class Router
     public Boolean getDebug()
     {
         return(this.debug);
+    }
+
+    public Boolean getDeleteFile()
+    {
+        return(this.deletefile);
     }
 
     public String getError()

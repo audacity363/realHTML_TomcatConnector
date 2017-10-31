@@ -1,4 +1,9 @@
-*.class
 *.swp
+*.swo
+*~
 *.o
-*.war
+*.so
+*.trc
+*.dmp
+javacore*
+*.class

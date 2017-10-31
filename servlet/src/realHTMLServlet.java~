@@ -9,21 +9,15 @@ import realHTML.tomcat.connector.ConfigurationLoader;
 import realHTML.tomcat.connector.Router;
 import realHTML.tomcat.connector.RH4NReturn;
 import realHTML.tomcat.connector.RH4NParams;
+import realHTML.tomcat.connector.RH4NCallParms;
 
 
 public class realHTMLServlet extends HttpServlet {
 
     private JNILoader bs;
-    private Map<String, String> settings;
-    //First Entry is the  library and the second the program
-    private String natinfos[] = new String[2];
-    private List<String> req_keys;
-    private List<String> req_vals;
-    private String req_type;
-    private Boolean debug = false;
-    private String version = "realHTML4Natural Tomcat Connector Servlet Version 1.0 (test)";
+    private String version = "realHTML4Natural Tomcat Connector Servlet Version 1.0 (test1)";
 
-    String default_tags[] = {"routes", "templates", "debug", "naterror", "ldaerror", "natparms", "natsourcepath"};
+    static String default_tags[] = {"routes", "templates", "debug", "naterror", "ldaerror", "natparms", "natsourcepath"};
 
     public void init() throws ServletException
     {
@@ -36,41 +30,38 @@ public class realHTMLServlet extends HttpServlet {
                     HttpServletResponse response)
             throws ServletException, IOException
     {
-        this.req_type = "get";
-        handleRequest(request, response);
+        handleRequest(request, response, "get");
     }
 
     public void doPost(HttpServletRequest request,
                     HttpServletResponse response)
             throws ServletException, IOException
     {
-        this.req_type = "post";
-        handleRequest(request, response);
+        handleRequest(request, response, "post");
     }
 
     public void doPut(HttpServletRequest request,
                     HttpServletResponse response)
             throws ServletException, IOException
     {
-        this.req_type = "put";
-        handleRequest(request, response);
+        handleRequest(request, response, "put");
     }
 
     public void doDelete(HttpServletRequest request,
                     HttpServletResponse response)
             throws ServletException, IOException
     {
-        this.req_type = "delete";
-        handleRequest(request, response);
+        handleRequest(request, response, "delete");
     }
 
 
     private void handleRequest(HttpServletRequest request,
-                    HttpServletResponse response)
+                    HttpServletResponse response, String req_type)
             throws ServletException, IOException
     {
         RH4NParams parms = new RH4NParams();
         RH4NReturn returncode;
+        RH4NCallParms call_parms = new RH4NCallParms();
 
         response.setContentType("text/html");
         PrintWriter out = response.getWriter();
@@ -88,26 +79,28 @@ public class realHTMLServlet extends HttpServlet {
         String env = path.substring(1, index);
         path = path.replace("/"+env, "");
 
-        if(!checkRequest(out, env, path))
+        call_parms = checkRequest(out, env, path, call_parms);
+
+        if(!call_parms.request_successful)
         {
             return;
         }
 
-        saveReqParms(request);
+        call_parms = saveReqParms(request, call_parms);
 
-        parms.keys = this.req_keys.toArray(new String[0]);
-        parms.vals = this.req_vals.toArray(new String[0]);
+        parms.keys = call_parms.req_keys.toArray(new String[0]);
+        parms.vals = call_parms.req_vals.toArray(new String[0]);
     
-        parms.settings = generateSettingsString();
+        parms.settings = generateSettingsString(call_parms);
 
         File temp = File.createTempFile("rH4N", "", new File("/tmp/"));
 
         parms.tmp_file = temp.getAbsolutePath();
-        parms.reg_type = this.req_type;
-        parms.nat_library = this.natinfos[0];
-        parms.nat_program = this.natinfos[1];
-        parms.natparams = this.settings.get("natparms");
-        parms.debug = String.valueOf(this.debug);
+        parms.reg_type = req_type;
+        parms.nat_library = call_parms.natinfos[0];
+        parms.nat_program = call_parms.natinfos[1];
+        parms.natparams = call_parms.settings.get("natparms");
+        parms.debug = String.valueOf(call_parms.debug);
 
         returncode = bs.callNatural(parms);
 
@@ -117,7 +110,7 @@ public class realHTMLServlet extends HttpServlet {
             return;
         }
 
-        switch(deliverFile(out, parms.tmp_file))
+        switch(deliverFile(out, parms.tmp_file, call_parms))
         {
             case -1:
                 out.println("File Not found");
@@ -128,15 +121,15 @@ public class realHTMLServlet extends HttpServlet {
         }
     }
 
-    private void saveReqParms(HttpServletRequest req)
+    private RH4NCallParms saveReqParms(HttpServletRequest req, RH4NCallParms parms)
     {
         Map m;
         Set s;
         Map.Entry<String, String[]> entry;
         Iterator it;
 
-        this.req_keys = new ArrayList<String>();
-        this.req_vals = new ArrayList<String>();
+        parms.req_keys = new ArrayList<String>();
+        parms.req_vals = new ArrayList<String>();
 
         m = req.getParameterMap();
         s = m.entrySet();
@@ -145,13 +138,15 @@ public class realHTMLServlet extends HttpServlet {
         while(it.hasNext())
         {
             entry = (Map.Entry<String, String[]>)it.next();
-            this.req_keys.add(entry.getKey());
-            this.req_vals.add(entry.getValue()[0]);
+            parms.req_keys.add(entry.getKey());
+            parms.req_vals.add(entry.getValue()[0]);
 
         }
+
+        return parms;
     }
 
-    private boolean checkRequest(PrintWriter out, String env, String path)
+    private RH4NCallParms checkRequest(PrintWriter out, String env, String path, RH4NCallParms parms)
     {
         String configurationfile;    
         ConfigurationLoader cl;
@@ -161,7 +156,8 @@ public class realHTMLServlet extends HttpServlet {
         if(configurationfile == null)
         {
             out.println("\"realHTMLconfiguration\" ist not set");
-            return(false);
+            parms.request_successful = false;
+            return(parms);
         }
 
         cl = new ConfigurationLoader(configurationfile, this.default_tags);
@@ -170,43 +166,51 @@ public class realHTMLServlet extends HttpServlet {
             if(!cl.readConfiguration(env))
             {
                 out.printf("Env [%s] was not found", env);
-                return(false);
+                parms.request_successful = false;
+                return(parms);
             }
         }
         catch(Exception e)
         {
             out.println("Something went wrong...(See the logs for more infos)");
             e.printStackTrace();
-            return(false);
+            parms.request_successful = false;
+            return(parms);
         }
-        this.settings = cl.getResult();
 
-        if(!checkSettings(this.settings, out))
+        parms.settings = cl.getResult();
+
+        if(!checkSettings(parms.settings, out))
         {
-            return(false);
+            parms.request_successful = false;
+            return(parms);
         }
 
         
-        r = new Router(this.settings.get("routes"));
+        r = new Router(parms.settings.get("routes"));
         try
         {
             if(!r.searchRoute(path))
             {
                 out.println(r.getError());
-                return(false);
+                parms.request_successful = false;
+                return(parms);
             }
         }
         catch(Exception e)
         {
             out.println("Something went wrong...(See the logs for more infos)");
             e.printStackTrace();
-            return(false);
+            parms.request_successful = false;
+            return(parms);
         }
 
-        this.natinfos[0] = r.getLibrary();
-        this.natinfos[1] = r.getProgram();
-        this.debug = r.getDebug();
-        return(true);
+        parms.natinfos[0] = r.getLibrary();
+        parms.natinfos[1] = r.getProgram();
+        parms.debug = r.getDebug();
+        parms.deleteFile = r.getDeleteFile();
+        parms.request_successful = true;
+        return(parms);
 
     }
 
@@ -225,19 +229,19 @@ public class realHTMLServlet extends HttpServlet {
         return(true);
     }
 
-    private String generateSettingsString()
+    private String generateSettingsString(RH4NCallParms parms)
     {
         String settings_str;
 
         settings_str = String.format("templates=%s;lib=%s;natsrc=%s;debug=%b", 
-                this.settings.get("templates"), 
-                this.natinfos[0],
-                this.settings.get("natsourcepath"),
-                this.debug);
+                parms.settings.get("templates"), 
+                parms.natinfos[0],
+                parms.settings.get("natsourcepath"),
+                parms.debug);
         return(settings_str);
     }
      
-    private int deliverFile(PrintWriter out, String filename)
+    private int deliverFile(PrintWriter out, String filename, RH4NCallParms parms)
     {
         String curLine = null;
 
@@ -272,10 +276,12 @@ public class realHTMLServlet extends HttpServlet {
         }
 
         File file = new File(filename);
-        System.out.printf("File_size of [%s]: [%d]\n", filename, file.length());
+        System.out.printf("File_size of [%s]: [%d]\nDelete File: [%b]\n", filename, file.length(), this.deleteFile);
 
-        file.delete();
-
+        if(parms.deleteFile)
+        {
+            file.delete();
+        }
 
         return(0);
     }

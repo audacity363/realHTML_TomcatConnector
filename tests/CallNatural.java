@@ -22,7 +22,7 @@ public class CallNatural
         parms.nat_library = "TGAP0734";
         parms.nat_program = "PARMTEST";
 
-        parms.tmp_file = "/u/it/a140734/C/realHTML_TomcatConnector/tests/test.out";
+        parms.tmp_file = "/u/it/a140734/C/rh4n/realHTML_TomcatConnector/tests/test.out";
         parms.settings = "templates=/u/it/a140734/C/realHtml4Natural/web_server/templates/;lib=TGAP0734;natsrc=/VAW/natural/abve/fuser63/";
 
         parms.natparams = "etid=$$ parm=lohnparm";

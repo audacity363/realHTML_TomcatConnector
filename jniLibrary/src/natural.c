@@ -126,6 +126,10 @@ int setParmcountParm(pnni_611_functions s_funcs, JNIEnv *env,
     int index)
 {
     int rc = 0;
+    struct naturalparms *target;
+
+    target = getParmByName(parms, length, "keys");
+
     if((rc = s_funcs->pf_nni_init_parm_s(s_funcs, index, natnniparms, NNI_TYPE_INT, 
         sizeof(int), 0, 0)) != NNI_RC_OK)
     {
@@ -133,7 +137,7 @@ int setParmcountParm(pnni_611_functions s_funcs, JNIEnv *env,
     }
 
     if((rc = s_funcs->pf_nni_put_parm(s_funcs, index, natnniparms,
-	    sizeof(int), &length)) != NNI_RC_OK)
+	    sizeof(int), &(target->array_length))) != NNI_RC_OK)
     {
         return(rc);
     }
@@ -178,10 +182,15 @@ int callNatural(JNIEnv *env, struct naturalparms *parms, int length,
     if((rc = nnifuncs->pf_nni_initialize(nnifuncs, natcliparms, 0, 0)) != NNI_RC_OK)
     {
         strcpy(error, natErrno2Str(rc));
-        debugFileprint(logfile, "...Fail [%s]\n", error);
+        debugFileprint(logfile, "...Fail [%s](%d)\n", error, rc);
         return(-1);
     }
     debugFileprint(logfile, "...Done\n");
+
+    debugFileprint(logfile, "Wait for exclusive access...\n");
+    nnifuncs->pf_nni_enter(nnifuncs);
+    debugFileprint(logfile, "... I have the session all for myself\n");
+
 
     natNNIparms = generateNaturalParams(nnifuncs, env, parms, length);
     printNaturalParmsStruct(natNNIparms, logfile);
@@ -222,6 +231,8 @@ int callNatural(JNIEnv *env, struct naturalparms *parms, int length,
         return(rc);
     }
     debugFileprint(logfile, "...Done\n");
+
+    nnifuncs->pf_nni_leave(nnifuncs);
 
     //close everything natural related
     debugFileprint(logfile, "Uninitialize and freeing nni...");
@@ -328,6 +339,7 @@ int printErrortoFile(struct natural_exception ext, char *outfile, char *error)
     fprintf(output, "<p><span>Message Text:</span>%s</p>\n", ext.natMessageText);
     fprintf(output, "<p><span>Error Number:</span>%d</p>\n", ext.natMessageNumber);
     fprintf(output, "<p><span>Library:</span>%s</p>\n", ext.natLibrary);
+    fprintf(output, "<p><span>Error Line:</span>%d</p>\n", ext.natLine);
     fprintf(output, "</body></html>");
 
     fclose(output);
