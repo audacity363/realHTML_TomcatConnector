@@ -1,7 +1,0 @@
-package realHTML.tomcat.connector;
-
-public class RH4NReturn {
-    int natprocess_ret;
-    String error_msg;
-}
-

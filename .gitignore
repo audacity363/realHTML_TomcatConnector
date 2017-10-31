@@ -7,3 +7,5 @@
 *.dmp
 javacore*
 *.class
+*.jar
+*.war
